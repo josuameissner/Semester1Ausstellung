@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Josua – Projektübersicht</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --card-bg: #1e2127;
+    --card-border: #2c3038;
+    --text: #f2f2f2;
+    --muted: #9a9fa8;
+    --accent: #5b8cff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  p.sub {
+    color: var(--muted);
+    margin: 0 0 40px;
+    font-size: 1rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  a.card {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+
+  a.card:hover,
+  a.card:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    background: #22262e;
+  }
+
+  a.card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .card .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .card .desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a.card { transition: none; }
+    a.card:hover, a.card:focus-visible { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <h1>Wähle ein Projekt</h1>
+    <p class="sub">Drei Webseiten, ein Link – klick auf eine der Karten.</p>
+
+    <div class="grid">
+      <a class="card" href="algo/index.html">
+        <div class="title">Algo</div>
+        <div class="desc">Algorithmen &amp; Creative Coding Projekte</div>
+      </a>
+
+      <a class="card" href="watchfaces/index.html">
+        <div class="title">Watchfaces</div>
+        <div class="desc">Smartwatch Watch Faces</div>
+      </a>
+
+      <a class="card" href="wecker/index.html">
+        <div class="title">Wecker</div>
+        <div class="desc">Wecker-Projekt</div>
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<script src="../libraries/p5.js" type="text/javascript"></script>
+<script src="../libraries/decomp.min.js" type="text/javascript"></script>
+<script src="../libraries/pathseg.js" type="text/javascript"></script>
+<script src="../libraries/matter.js" type="text/javascript"></script>
+<script src="Metaballfallschacht2.js" type="text/javascript"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #000000;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    gap: 16px;
+    padding: 16px;
+    font-family: monospace;
+  }
+
+  #hud {
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 2px;
+  }
+
+  .hud-box {
+    background: #000;
+    color: #fff;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hud-label {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .hud-value {
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .hud-value span {
+    font-size: 26px;
+    font-weight: normal;
+    color: rgba(255,255,255,0.35);
+    margin-left: 3px;
+  }
+
+  .timer-bar-wrap {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.15);
+    margin-top: 4px;
+  }
+
+  .timer-bar {
+    height: 100%;
+    background: #fff;
+    transition: width 0.1s linear;
+  }
+
+  #canvas-wrap {
+    outline: 2px solid #000;
+    line-height: 0;
+    flex-shrink: 0;
+  }
+
+  #spawn-panel {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 2px;
+  }
+
+  .spawn-panel-label {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.4);
+    padding-left: 2px;
+  }
+
+  .shape-btn {
+    width: 100%;
+    background: #000;
+    border: none;
+    color: #fff;
+    padding: 14px 8px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+
+  .shape-btn:hover { background: #222; }
+  .shape-btn:active { background: #444; }
+
+  .shape-btn-label {
+    font-family: monospace;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.55);
+  }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div class="hud-box">
+    <div class="hud-label">Zeit</div>
+    <div class="hud-value" id="hud-seconds">0<span>s</span></div>
+  </div>
+
+  <div class="hud-box">
+    <div class="hud-label">Nächstes Dreieck</div>
+    <div class="hud-value" id="hud-tri-countdown">5<span>s</span></div>
+    <div class="timer-bar-wrap">
+      <div class="timer-bar" id="bar-tri" style="width:100%"></div>
+    </div>
+  </div>
+
+  <div class="hud-box">
+    <div class="hud-label">Nächstes Viereck</div>
+    <div class="hud-value" id="hud-sq-countdown">30<span>s</span></div>
+    <div class="timer-bar-wrap">
+      <div class="timer-bar" id="bar-sq" style="width:100%"></div>
+    </div>
+  </div>
+</div>
+
+<div id="canvas-wrap"></div>
+
+<div id="spawn-panel">
+  <div class="spawn-panel-label">Spawn</div>
+
+  <button class="shape-btn" onclick="manualSpawn(0)">
+    <canvas id="icon-square" width="50" height="50"></canvas>
+    <span class="shape-btn-label">Viereck</span>
+  </button>
+
+  <button class="shape-btn" onclick="manualSpawn(1)">
+    <canvas id="icon-tri" width="50" height="50"></canvas>
+    <span class="shape-btn-label">Dreieck</span>
+  </button>
+
+  <button class="shape-btn" onclick="manualSpawn(2)">
+    <canvas id="icon-ball" width="50" height="50"></canvas>
+    <span class="shape-btn-label">Ball</span>
+  </button>
+</div>
+
+<script>
+function drawIcons() {
+  const ctxSq = document.getElementById("icon-square").getContext("2d");
+  ctxSq.strokeStyle = "#fff";
+  ctxSq.lineWidth = 2;
+  ctxSq.strokeRect(8, 8, 34, 34);
+
+  const ctxTri = document.getElementById("icon-tri").getContext("2d");
+  ctxTri.strokeStyle = "#fff";
+  ctxTri.lineWidth = 2;
+  ctxTri.beginPath();
+  ctxTri.moveTo(25, 4);
+  ctxTri.lineTo(46, 46);
+  ctxTri.lineTo(4, 46);
+  ctxTri.closePath();
+  ctxTri.stroke();
+
+  const ctxBall = document.getElementById("icon-ball").getContext("2d");
+  ctxBall.strokeStyle = "#fff";
+  ctxBall.lineWidth = 2;
+  ctxBall.beginPath();
+  ctxBall.arc(25, 25, 20, 0, Math.PI * 2);
+  ctxBall.stroke();
+}
+drawIcons();
+
+const { Engine, World, Bodies, Body } = Matter;
+
+// =====================================================
+// PARAMETER
+// =====================================================
+
+const SIZE = 960;
+const CENTER_X = SIZE / 2;
+const CENTER_Y = SIZE / 2;
+
+const PORTAL_RADIUS = 135;
+const PORTAL_POINTS = 150;
+const PORTAL_WAVE_AMP = 9;
+const PORTAL_WAVE_SPEED = 0.001;
+const PORTAL_INTERACTION_RADIUS = 150;
+const PORTAL_INTERACTION_STRENGTH = 48;
+const PORTAL_OUTLINE_WEIGHT = 1;
+
+const SQUARE_SIZE = 50;
+const TRI_SIZE = 45;
+const BALL_SIZE = 100;
+const SHAPE_OUTLINE_WEIGHT = 3;
+
+const SQUARE_BATCH_COUNT = 10;
+const TRI_BATCH_COUNT = 5;
+const BALL_BATCH_COUNT = 1;
+
+const AUTO_SPAWN = true;
+
+const SPAWN_INTERVAL = [10000, 5000, 1000];
+
+const OUTWARD_SPEED_MIN = 2.2;
+const OUTWARD_SPEED_MAX = 3.2;
+const SQUARE_SPEED_MIN = 0.8;
+const SQUARE_SPEED_MAX = 1.4;
+
+const SPAWN_RANDOM_OFFSET = 18;
+const FRICTION_AIR = 0.002;
+const REMOVE_MARGIN = 240;
+
+const BALL_METABALL_MAX_DISTANCE = 95;
+const BALL_METABALLS = {
+  hThickness: 0.9,
+  hLengthRate: 1.4,
+  maxDistance: BALL_METABALL_MAX_DISTANCE,
+  waveCount: 0,
+  waveSize: 1
+};
+
+const MAX_OBJECTS = 180;
+
+// ====== PORTAL PULS ======
+const PULSE_STRENGTH = 12;  // wie weit der Radius nach außen geht (px)
+const PULSE_SPEED = 1.0;    // Pulse pro Sekunde
+
+// Drag
+let dragBody = null;
+let dragOffX = 0;
+let dragOffY = 0;
+let prevMouseX = 0;
+let prevMouseY = 0;
+let mouseVX = 0;
+let mouseVY = 0;
+
+let engine;
+let objects = [];
+let lastSpawnTime = [0, 0, 0];
+let metaballs;
+let startTime = 0;
+
+// =====================================================
+// p5 SETUP & DRAW
+// =====================================================
+
+function setup() {
+  const cnv = createCanvas(SIZE, SIZE);
+  cnv.parent("canvas-wrap");
+
+  engine = Engine.create();
+  engine.gravity.y = 0;
+  engine.gravity.x = 0;
+  engine.positionIterations = 20;
+  engine.velocityIterations = 20;
+  engine.constraintIterations = 10;
+
+  metaballs = new Metaballs(
+    BALL_METABALLS.hThickness,
+    BALL_METABALLS.hLengthRate,
+    BALL_METABALLS.maxDistance,
+    BALL_METABALLS.waveCount,
+    BALL_METABALLS.waveSize
+  );
+
+  const now = millis();
+  lastSpawnTime = [now, now, now];
+  startTime = now;
+}
+
+function draw() {
+  background(0);
+
+  if (AUTO_SPAWN) handleAutoSpawning();
+
+  mouseVX = mouseX - prevMouseX;
+  mouseVY = mouseY - prevMouseY;
+  prevMouseX = mouseX;
+  prevMouseY = mouseY;
+
+  if (dragBody) {
+    Body.setPosition(dragBody, { x: mouseX - dragOffX, y: mouseY - dragOffY });
+    Body.setVelocity(dragBody, { x: mouseVX, y: mouseVY });
+  }
+
+  Engine.update(engine, 1000 / 60);
+  removeOutsideObjects();
+
+  for (let o of objects) {
+    if (o.kind === "square") drawSquare(o);
+    else if (o.kind === "triangle") drawTriangle(o);
+  }
+
+  drawBallMetaballs();
+  drawPortal();
+  updateHUD();
+}
+
+// =====================================================
+// MAUS
+// =====================================================
+
+function mousePressed() {
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const o = objects[i];
+    const dx = mouseX - o.position.x;
+    const dy = mouseY - o.position.y;
+    const r = getObjectRadius(o);
+    if (dx * dx + dy * dy < r * r) {
+      dragBody = o;
+      dragOffX = dx;
+      dragOffY = dy;
+      Body.setStatic(dragBody, true);
+      break;
+    }
+  }
+}
+
+function mouseReleased() {
+  if (dragBody) {
+    Body.setStatic(dragBody, false);
+    const THROW_BOOST = 3.5;
+    Body.setVelocity(dragBody, { x: mouseVX * THROW_BOOST, y: mouseVY * THROW_BOOST });
+    dragBody = null;
+  }
+}
+
+// =====================================================
+// HUD
+// =====================================================
+
+function updateHUD() {
+  const now = millis();
+  document.getElementById("hud-seconds").innerHTML =
+    Math.floor((now - startTime) / 1000) + "<span>s</span>";
+
+  const triInterval = SPAWN_INTERVAL[1];
+  const triRemain = Math.max(0, triInterval - (now - lastSpawnTime[1])) / 1000;
+  document.getElementById("hud-tri-countdown").innerHTML =
+    triRemain.toFixed(1) + "<span>s</span>";
+  document.getElementById("bar-tri").style.width =
+    ((triRemain / (triInterval / 1000)) * 100) + "%";
+
+  const sqInterval = SPAWN_INTERVAL[0];
+  const sqRemain = Math.max(0, sqInterval - (now - lastSpawnTime[0])) / 1000;
+  document.getElementById("hud-sq-countdown").innerHTML =
+    sqRemain.toFixed(1) + "<span>s</span>";
+  document.getElementById("bar-sq").style.width =
+    ((sqRemain / (sqInterval / 1000)) * 100) + "%";
+}
+
+// =====================================================
+// SPAWN
+// =====================================================
+
+function manualSpawn(type) { spawnBatch(type); }
+
+function handleAutoSpawning() {
+  const now = millis();
+  for (let type = 0; type < 3; type++) {
+    if (now - lastSpawnTime[type] >= SPAWN_INTERVAL[type]) {
+      lastSpawnTime[type] += SPAWN_INTERVAL[type];
+      spawnBatch(type);
+    }
+  }
+}
+
+function spawnBatch(type) {
+  if (objects.length >= MAX_OBJECTS) return;
+  const count = type === 0 ? SQUARE_BATCH_COUNT : type === 1 ? TRI_BATCH_COUNT : BALL_BATCH_COUNT;
+  for (let i = 0; i < count; i++) {
+    if (objects.length >= MAX_OBJECTS) return;
+    spawnObject(type);
+  }
+}
+
+function spawnObject(type) {
+  const angle = random(TWO_PI);
+
+  // Spawn direkt am Portal-Rand statt im Zentrum
+  const spawnDist = PORTAL_RADIUS + random(-SPAWN_RANDOM_OFFSET, SPAWN_RANDOM_OFFSET);
+
+  const x = CENTER_X + cos(angle) * spawnDist;
+  const y = CENTER_Y + sin(angle) * spawnDist;
+
+  const speed = type === 0
+    ? random(SQUARE_SPEED_MIN, SQUARE_SPEED_MAX)
+    : random(OUTWARD_SPEED_MIN, OUTWARD_SPEED_MAX);
+
+  const opts = { restitution: 0.45, friction: 0, frictionAir: FRICTION_AIR, density: 0.002 };
+  let body;
+
+  if (type === 0) {
+    body = Bodies.rectangle(x, y, SQUARE_SIZE, SQUARE_SIZE, { ...opts, angle: random(TWO_PI) });
+    body.kind = "square";
+    body.visualRadius = SQUARE_SIZE * 0.72;
+    Body.setAngularVelocity(body, random(-0.055, 0.055));
+  } else if (type === 1) {
+    body = Bodies.polygon(x, y, 3, TRI_SIZE, { ...opts, angle: random(TWO_PI) });
+    body.kind = "triangle";
+    body.visualRadius = TRI_SIZE;
+    Body.setAngularVelocity(body, random(-0.07, 0.07));
+  } else {
+    body = Bodies.circle(x, y, BALL_SIZE / 2, { ...opts, angle: random(TWO_PI) });
+    body.kind = "ball";
+    body.visualRadius = BALL_SIZE / 2;
+    Body.setAngularVelocity(body, random(-0.025, 0.025));
+  }
+
+  Body.setVelocity(body, { x: cos(angle) * speed, y: sin(angle) * speed });
+  World.add(engine.world, body);
+  objects.push(body);
+}
+
+function removeOutsideObjects() {
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const o = objects[i];
+    if (
+      o.position.x < -REMOVE_MARGIN || o.position.x > width + REMOVE_MARGIN ||
+      o.position.y < -REMOVE_MARGIN || o.position.y > height + REMOVE_MARGIN
+    ) {
+      World.remove(engine.world, o);
+      objects.splice(i, 1);
+    }
+  }
+}
+
+// =====================================================
+// DRAW SHAPES
+// =====================================================
+
+function drawSquare(body) {
+  const h = SQUARE_SIZE / 2;
+  push();
+  translate(body.position.x, body.position.y);
+  rotate(body.angle);
+  fill(255); stroke(0); strokeWeight(SHAPE_OUTLINE_WEIGHT); strokeJoin(ROUND);
+  beginShape();
+  vertex(-h, -h); vertex(h, -h); vertex(h, h); vertex(-h, h);
+  endShape(CLOSE);
+  pop();
+}
+
+function drawTriangle(body) {
+  push();
+  translate(body.position.x, body.position.y);
+  rotate(body.angle);
+  fill(255); stroke(0); strokeWeight(SHAPE_OUTLINE_WEIGHT); strokeJoin(ROUND);
+  beginShape();
+  for (let i = 0; i < 3; i++) {
+    const a = -HALF_PI + i * TWO_PI / 3;
+    vertex(cos(a) * TRI_SIZE, sin(a) * TRI_SIZE);
+  }
+  endShape(CLOSE);
+  pop();
+}
+
+function drawBallMetaballs() {
+  const balls = objects.filter(o => o.kind === "ball");
+  if (balls.length === 0) return;
+  metaballs.drawWhite(balls.map(b => ({ x: b.position.x, y: b.position.y, radius: BALL_SIZE })));
+}
+
+// =====================================================
+// PORTAL
+// =====================================================
+
+function drawPortal() {
+  const pts = getPortalPoints();
+
+  noStroke(); fill(255);
+  beginShape();
+  for (let k = -2; k < pts.length + 2; k++) {
+    const i = (k + pts.length) % pts.length;
+    curveVertex(pts[i].x, pts[i].y);
+  }
+  endShape(CLOSE);
+
+  stroke(255); strokeWeight(PORTAL_OUTLINE_WEIGHT); strokeJoin(ROUND); strokeCap(ROUND); noFill();
+  beginShape();
+  for (let k = -2; k < pts.length + 2; k++) {
+    const i = (k + pts.length) % pts.length;
+    curveVertex(pts[i].x, pts[i].y);
+  }
+  endShape(CLOSE);
+
+  drawPortalRing(pts, -18, 120);
+  drawPortalRing(pts, -35, 70);
+}
+
+function drawPortalRing(basePts, inset, alpha) {
+  stroke(255, alpha); strokeWeight(3); noFill();
+  beginShape();
+  for (let k = -2; k < basePts.length + 2; k++) {
+    const i = (k + basePts.length) % basePts.length;
+    const p = basePts[i];
+    const dx = p.x - CENTER_X;
+    const dy = p.y - CENTER_Y;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    curveVertex(p.x + (dx / len) * inset, p.y + (dy / len) * inset);
+  }
+  endShape(CLOSE);
+}
+
+function getPortalPoints() {
+  const pts = [];
+  const t = millis() * PORTAL_WAVE_SPEED;
+  for (let i = 0; i < PORTAL_POINTS; i++) {
+    const a = TWO_PI / PORTAL_POINTS * i;
+    const wave =
+      sin(a * 5 + t * 2.0) * PORTAL_WAVE_AMP +
+      sin(a * 9 - t * 2.7) * PORTAL_WAVE_AMP * 0.45 +
+      sin(a * 15 + t * 1.3) * PORTAL_WAVE_AMP * 0.22;
+    const r = PORTAL_RADIUS + wave + getHeartbeat();
+    pts.push({ x: CENTER_X + cos(a) * r, y: CENTER_Y + sin(a) * r });
+  }
+  return pts;
+}
+
+function getHeartbeat() {
+  const t = millis() / 1000;
+  const phase = (t * PULSE_SPEED) % 1.0;
+  const pulse = Math.pow(Math.sin(phase * Math.PI), 1.5);
+  return pulse * PULSE_STRENGTH;
+}
+
+// =====================================================
+// HELPER
+// =====================================================
+
+function getObjectRadius(o) {
+  if (o.visualRadius) return o.visualRadius;
+  if (o.circleRadius) return o.circleRadius;
+  return BALL_SIZE / 2;
+}
+
+function absAngleDifference(a, b) {
+  let d = a - b;
+  while (d > Math.PI) d -= TWO_PI;
+  while (d < -Math.PI) d += TWO_PI;
+  return Math.abs(d);
+}
+</script>
+</body>
+</html>

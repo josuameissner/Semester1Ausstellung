@@ -1,0 +1,376 @@
+:root {
+  --gray: #e4e4e4;
+  --ink: #111111;
+  --font: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* ---- Hier einfach die drei Werte ändern ---- */
+  --slide-width: 82vw;   /* Breite der grauen Box */
+  --slide-height: 70vh;  /* Höhe der grauen Box */
+  --slide-gap: 0.8vw;    /* Abstand zwischen zwei Blättern */
+
+  /* Wie stark die Nachbar-Slides verkleinert werden (1 = keine
+     Verkleinerung). Näher an 1 = optisch näher am aktiven Slide,
+     da die Verkleinerung selbst zusätzlichen Leerraum erzeugt. */
+  --slide-inactive-scale: 0.95;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Statischer Titel (rotiert nie mit den Slides) ---------- */
+
+.site-header {
+  flex: 0 0 auto;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: clamp(28px, 4.4vw, 68px);
+  padding: clamp(28px, 5vh, 56px) 0 clamp(6px, 1vh, 14px);
+}
+
+/* ---------- Carousel ---------- */
+
+.carousel-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.carousel-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--slide-gap);
+  will-change: transform;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------- Slide ---------- */
+
+.slide {
+  flex: 0 0 auto;
+  width: var(--slide-width);
+  max-width: 2000px;
+  height: var(--slide-height);
+  display: flex;
+  flex-direction: column;
+  transform: scale(var(--slide-inactive-scale));
+  opacity: 0.4;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1),
+              opacity 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+
+.slide.is-active {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide__stage {
+  position: relative;
+  flex: 1;
+  background: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(16px, 3vw, 48px);
+  padding: clamp(16px, 3vw, 44px);
+  min-height: 0;
+}
+
+/* Titel / Studierende — feste Textspalte links, Medien daneben. */
+.slide__info {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  width: clamp(140px, 20vw, 300px);
+  text-align: left;
+  font-family: var(--font-serif);
+  font-size: clamp(13px, 1.7vw, 27px);
+  line-height: 1.3;
+}
+
+.slide__info-row {
+  margin-bottom: clamp(12px, 2.4vw, 32px);
+}
+
+.slide__info-row:last-child {
+  margin-bottom: 0;
+}
+
+.slide__info-row strong {
+  font-weight: 700;
+}
+
+/* Medien stehen randlos, groß und mittig im verbleibenden Platz. */
+.slide__media-wrap {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.media-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+
+.media-grid--multi {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  background: #000000;
+}
+
+.media-item {
+  aspect-ratio: 16 / 9;
+  background: transparent;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.media-item img,
+.media-item iframe {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 0;
+}
+
+.media-item img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- YouTube / Shorts (vereinheitlicht) ---------- */
+
+/* Jeder Short bekommt einen weißen 16:9-Rahmen mit voller Höhe
+   -> gleiche Höhe & gleicher Abstand zum grauen Kasten für ALLE. */
+.media-item--youtube {
+  aspect-ratio: 16 / 9;
+  background: #ffffff;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Das iframe nutzt das ECHTE Seitenverhältnis des Videos
+   (aus videos.js) -> keine schwarzen Ränder. */
+.media-item--youtube iframe {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: var(--short-aspect, 9 / 16);
+}
+
+/* "background: wide" (Josua) verhält sich jetzt identisch. */
+.media-item--youtube.media-item--background-wide {
+  aspect-ratio: 16 / 9;
+}
+
+.media-item--youtube.media-item--background-wide iframe {
+  height: 100%;
+  width: auto;
+  aspect-ratio: var(--short-aspect, 9 / 16);
+}
+
+/* ---------- Grid-Ansicht mit mehreren Medien (Jessi) ---------- */
+
+.media-grid--multi .media-item {
+  width: 100%;
+  height: auto;
+}
+
+.media-grid--multi .media-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Jessis Medien bilden eine gemeinsame schwarze Fläche. Der Short
+   bleibt linksbündig; das Bild schließt ohne Zwischenraum daran an. */
+.media-grid--multi .media-item--youtube {
+  aspect-ratio: 16 / 9;
+  background: #000000;
+  height: 100%;
+  width: auto;
+  max-height: 100%;
+  justify-self: center;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: clamp(280px, 4.5vw, 64px);
+}
+
+.media-grid--multi .media-item--youtube iframe {
+  height: 100%;
+  width: auto;
+  aspect-ratio: var(--short-aspect, 9 / 16);
+}
+
+.media-missing {
+  align-self: center;
+  justify-self: center;
+  color: #777777;
+  font-size: clamp(13px, 1.3vw, 20px);
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ---------- Fester Fußbereich (außerhalb des Karussells) ---------- */
+
+.site-footer {
+  position: relative;
+  flex: 0 0 clamp(124px, 18.35vh, 160px);
+  height: clamp(124px, 18.35vh, 160px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: clamp(10px, 1.6vh, 20px) clamp(20px, 3vw, 56px);
+}
+
+.site-footer .dots {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.site-footer__meta {
+  display: flex;
+  gap: clamp(24px, 4vw, 64px);
+  font-size: clamp(11px, 1.1vw, 16px);
+  line-height: 1.55;
+}
+
+.site-footer__meta > div:first-child {
+  flex: 0 0 clamp(174px, 14.7vw, 235px);
+}
+
+.site-footer__meta strong {
+  font-weight: 700;
+}
+
+.site-footer__logo {
+  position: absolute;
+  right: clamp(20px, 3vw, 56px);
+  bottom: clamp(10px, 1.6vh, 20px);
+}
+
+.site-footer__logo img {
+  display: block;
+  height: clamp(36px, 4.4vw, 62px);
+  width: auto;
+}
+
+/* ---------- Navigation ---------- */
+
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: none;
+  border: none;
+  font-size: clamp(52px, 6.5vw, 96px);
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.45;
+  cursor: pointer;
+  padding: 12px 20px;
+  transition: opacity 0.2s ease;
+}
+
+.nav-arrow:hover,
+.nav-arrow:focus-visible {
+  opacity: 1;
+}
+
+.nav-arrow--left { left: clamp(6px, 1.5vw, 24px); }
+.nav-arrow--right { right: clamp(6px, 1.5vw, 24px); }
+
+.dots {
+  display: flex;
+  gap: 9px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d0d0d0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dot.is-active {
+  background: var(--ink);
+  transform: scale(1.25);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .slide { width: 82vw; }
+  .carousel-track { gap: 6vw; }
+  .slide__stage { flex-direction: column; justify-content: flex-start; }
+  .slide__info { width: 100%; align-self: flex-start; }
+  .slide__media-wrap { width: 100%; }
+  .media-grid--multi { grid-template-columns: 1fr; }
+  .site-footer { flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; }
+  .site-footer__meta { gap: 20px; flex-direction: column; }
+  .site-footer__meta > div:first-child { flex-basis: auto; }
+  .site-footer .dots { position: static; transform: none; order: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track,
+  .slide {
+    transition-duration: 0.01ms !important;
+  }
+}

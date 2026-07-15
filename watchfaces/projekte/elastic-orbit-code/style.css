@@ -1,0 +1,205 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #090909;
+  color: #f4f4f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-width: 1240px;
+  min-height: 998px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 50% 45%, #181818 0%, #080808 66%),
+    #080808;
+}
+
+main {
+  width: auto;
+  padding: 18px;
+}
+
+.game-shell {
+  display: flex;
+  align-items: stretch;
+  gap: 22px;
+}
+
+.canvas-frame {
+  box-sizing: content-box;
+  width: 960px;
+  height: 960px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #666;
+  box-shadow: 0 22px 70px rgb(0 0 0 / 55%);
+}
+
+#canvas-container {
+  width: 960px;
+  height: 960px;
+}
+
+#canvas-container canvas {
+  display: block;
+  width: 960px !important;
+  height: 960px !important;
+}
+
+.side-panel {
+  display: flex;
+  width: 260px;
+  flex-direction: column;
+  gap: 14px;
+  color: #f1f1ed;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.score-card,
+.wave-card,
+.parameters {
+  border: 1px solid #555;
+  background: rgb(12 12 12 / 90%);
+  box-shadow: 0 14px 42px rgb(0 0 0 / 32%);
+}
+
+.score-card,
+.wave-card {
+  display: grid;
+  gap: 8px;
+  padding: 17px 18px;
+}
+
+.score-card span,
+.wave-card span,
+.wave-card small {
+  color: #aaa;
+  font-size: 11px;
+}
+
+.score-card strong {
+  color: #ffad21;
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.wave-card strong {
+  color: #f4f4f0;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+button {
+  border: 1px solid rgb(255 255 255 / 35%);
+  padding: 13px 16px;
+  color: inherit;
+  background: rgb(12 12 12 / 90%);
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+button:hover,
+button:focus-visible {
+  border-color: #ffad21;
+  color: #ffad21;
+  outline: none;
+}
+
+.parameters {
+  padding: 17px 18px 19px;
+}
+
+.parameter-heading,
+.parameters label > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.parameter-heading {
+  margin-bottom: 16px;
+  color: #f1f1ed;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.parameters label {
+  display: block;
+  margin-top: 14px;
+  color: #bcbcb7;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.parameters output {
+  color: #ffad21;
+  font-variant-numeric: tabular-nums;
+}
+
+.parameters input[type="range"] {
+  width: 100%;
+  height: 3px;
+  margin: 10px 0 2px;
+  accent-color: #ffad21;
+  cursor: pointer;
+}
+
+/* Eingebettet (z.B. im Portfolio-Karussell als iframe): nur der 960x960
+   Canvas soll sichtbar sein, damit er exakt in die Uhren-PNG passt. Das
+   Seitenpanel mit Punkten/Parametern wird hier ausgeblendet, main/game-shell
+   verlieren Padding & Gap, damit der zentrierte Inhalt exakt 960x960 groß ist. */
+html.embedded body {
+  min-width: 0;
+  min-height: 0;
+}
+
+html.embedded main {
+  padding: 0;
+}
+
+html.embedded .game-shell {
+  gap: 0;
+}
+
+html.embedded .side-panel {
+  display: none;
+}
+
+@media (max-width: 1240px) {
+  body {
+    place-items: start center;
+    min-width: 0;
+  }
+
+  .game-shell {
+    flex-direction: column;
+  }
+
+  .side-panel {
+    width: 962px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .parameters {
+    grid-column: 1 / -1;
+  }
+}

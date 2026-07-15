@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Computational and Algorithmic Thinking</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+
+<body>
+
+  <div class="site-header">
+    Computational and Algorithmic Thinking
+  </div>
+
+  <div class="carousel-viewport" id="viewport">
+
+    <button
+      class="nav-arrow nav-arrow--left"
+      id="prevBtn"
+      aria-label="Vorheriges Video">
+      &#8249;
+    </button>
+
+    <div class="carousel-track" id="track">
+      <!-- Slides werden von script.js erzeugt -->
+    </div>
+
+    <button
+      class="nav-arrow nav-arrow--right"
+      id="nextBtn"
+      aria-label="Nächstes Video">
+      &#8250;
+    </button>
+
+  </div>
+
+  <div class="site-footer">
+
+    <div class="site-footer__meta">
+      <div>
+        <strong>Kursname:</strong><br>
+        Programmiertes Entwerfen 1
+      </div>
+
+      <div>
+        <strong>Betreuende:</strong><br>
+        Andreas Pollok
+      </div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="site-footer__logo">
+      <img
+        src="assets/logo.png"
+        alt="Hochschule für Gestaltung Schwäbisch Gmünd">
+    </div>
+
+  </div>
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- Videoliste -->
+  <script src="videos.js"></script>
+
+  <!-- Karussell -->
+  <script src="script.js"></script>
+
+</body>
+</html>

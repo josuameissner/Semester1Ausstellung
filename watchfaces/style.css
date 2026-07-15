@@ -1,0 +1,294 @@
+:root {
+  --gray: #e4e4e4;
+  --ink: #111111;
+  --font: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* ---- Hier einfach die drei Werte ändern ---- */
+  --slide-width: 82vw;   /* Breite der grauen Box */
+  --slide-height: 70vh;  /* Höhe der grauen Box */
+  --slide-gap: 0.8vw;    /* Abstand zwischen zwei Blättern */
+
+  /* Wie stark die Nachbar-Slides verkleinert werden (1 = keine
+     Verkleinerung). Näher an 1 = optisch näher am aktiven Slide,
+     da die Verkleinerung selbst zusätzlichen Leerraum erzeugt. */
+  --slide-inactive-scale: 0.95;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Statischer Titel (rotiert nie mit den Slides) ---------- */
+
+.site-header {
+  flex: 0 0 auto;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: clamp(28px, 4.4vw, 68px);
+  padding: clamp(28px, 5vh, 56px) 0 clamp(6px, 1vh, 14px);
+}
+
+/* ---------- Carousel ---------- */
+
+.carousel-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.carousel-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--slide-gap);
+  will-change: transform;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------- Slide ---------- */
+/* Breite und Höhe bewusst getrennt (nicht mehr über aspect-ratio
+   gekoppelt) — so kann die Box breiter werden, ohne automatisch
+   auch höher zu werden. Kleiner Gap lässt die Nachbar-Slides
+   sichtbar näher heranrücken. */
+
+.slide {
+  flex: 0 0 auto;
+  width: var(--slide-width);
+  max-width: 2000px;
+  height: var(--slide-height);
+  display: flex;
+  flex-direction: column;
+  transform: scale(var(--slide-inactive-scale));
+  opacity: 0.4;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1),
+              opacity 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+
+.slide.is-active {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide__stage {
+  position: relative;
+  flex: 1;
+  background: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Projektname / Gruppenname / Studierende — oben links in der grauen
+   Box, in Serifenschrift, wie im Referenz-Layout. */
+.slide__info {
+  position: absolute;
+  top: clamp(16px, 3vw, 44px);
+  left: clamp(16px, 3vw, 44px);
+  width: clamp(140px, 20vw, 300px);
+  z-index: 3;
+  text-align: left;
+  font-family: var(--font-serif);
+  font-size: clamp(13px, 1.7vw, 27px);
+  line-height: 1.3;
+}
+
+.slide__info-row {
+  margin-bottom: clamp(12px, 2.4vw, 32px);
+}
+
+.slide__info-row:last-child {
+  margin-bottom: 0;
+}
+
+.slide__info-row strong {
+  font-weight: 700;
+}
+
+/* Wrapper mit dem exakten Seitenverhältnis des Uhr-Bilds (892 x 1362) */
+.slide__watch {
+  position: relative;
+  height: 96%;
+  /* Ändere das auf das Seitenverhältnis deiner neuen PNG-Datei (Breite / Höhe) */
+  aspect-ratio: 892 / 1335; 
+}
+
+
+.slide__watch-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Der Canvas sitzt im (transparenten) Bildschirmbereich der Uhr, mit
+   kleinem Sicherheitsabstand zum Rand, damit an den abgerundeten Ecken
+   nichts über die Hülle hinausragt. Werte aus dem Uhr-Bild vermessen. */
+/* Der Canvas sitzt nun exakt an deinen neuen Pixel-Positionen */
+.slide__canvas-wrap {
+  position: absolute;
+  /* Bezug ist der .slide__watch Container */
+  left: 7.6%;   /* 67.91px / 892px */
+  top: 21%;     /* 280px / 1335px */
+  width: 79.9%; /* 712.8px / 892px */
+  height: 53.4%; /* 712.8px / 1335px */
+  
+  overflow: hidden;
+  background: transparent;
+  /* Falls die Uhr abgerundete Ecken hat, kannst du hier noch einen 
+     border-radius hinzufügen, z.B. 10% */
+}
+
+.slide__canvas-wrap iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 960px; /* Deine Quellgröße */
+  height: 960px; /* Deine Quellgröße */
+  border: 0;
+  transform-origin: top left;
+}
+
+
+/* ---------- Fester Fußbereich (außerhalb des Karussells) ---------- */
+/* Kursname, Betreuende, Logo: immer gleich, bewegt sich nie mit. */
+
+.site-footer {
+  position: relative;
+  flex: 0 0 clamp(124px, 18.35vh, 160px);
+  height: clamp(124px, 18.35vh, 160px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: clamp(10px, 1.6vh, 20px) clamp(20px, 3vw, 56px);
+}
+
+.site-footer .dots {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.site-footer__meta {
+  display: flex;
+  gap: clamp(24px, 4vw, 64px);
+  font-size: clamp(11px, 1.1vw, 16px);
+  line-height: 1.55;
+}
+
+.site-footer__meta > div:first-child {
+  flex: 0 0 clamp(174px, 14.7vw, 235px);
+}
+
+.site-footer__meta strong {
+  font-weight: 700;
+}
+
+.site-footer__logo {
+  position: absolute;
+  right: clamp(20px, 3vw, 56px);
+  bottom: clamp(10px, 1.6vh, 20px);
+}
+
+.site-footer__logo img {
+  display: block;
+  height: clamp(36px, 4.4vw, 62px);
+  width: auto;
+}
+
+/* ---------- Navigation ---------- */
+
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: none;
+  border: none;
+  font-size: clamp(52px, 6.5vw, 96px);
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.45;
+  cursor: pointer;
+  padding: 12px 20px;
+  transition: opacity 0.2s ease;
+}
+
+.nav-arrow:hover,
+.nav-arrow:focus-visible {
+  opacity: 1;
+}
+
+.nav-arrow--left { left: clamp(6px, 1.5vw, 24px); }
+.nav-arrow--right { right: clamp(6px, 1.5vw, 24px); }
+
+.dots {
+  display: flex;
+  gap: 9px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d0d0d0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dot.is-active {
+  background: var(--ink);
+  transform: scale(1.25);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .slide { width: 82vw; }
+  .carousel-track { gap: 6vw; }
+  .site-footer { flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; }
+  .site-footer__meta { gap: 20px; flex-direction: column; }
+  .site-footer__meta > div:first-child { flex-basis: auto; }
+  .site-footer .dots { position: static; transform: none; order: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track,
+  .slide {
+    transition-duration: 0.01ms !important;
+  }
+  
+}

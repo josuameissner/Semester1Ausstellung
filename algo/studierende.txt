@@ -1,0 +1,29 @@
+# ============================================================
+# Hier trägst du die Studierenden für jede Video-Slide ein.
+#
+# WICHTIG:
+# - Zeilen, die mit # beginnen, sind nur Kommentare (werden ignoriert).
+# - Jeder Block beginnt mit dem Namen des Videos in [eckigen Klammern].
+#   Diese Namen NICHT verändern, sonst werden die Studierenden nicht
+#   dem richtigen Video zugeordnet.
+# - Darunter einfach jeden Namen in eine eigene Zeile schreiben.
+# - Nach dem Speichern einfach die Seite im Browser neu laden.
+# ============================================================
+
+[Gewebte Wahrnehmung]
+Noemi Mantel
+Nadine Weber
+
+[Quantum Star]
+Shania Mostafavi
+Katja Dötsch
+
+[Fragmente]
+Philipp Holbeck
+Jeremy Blachetta
+Josua Meißner
+
+[The Noodles]
+Jessica Lenz
+Lilly Drabek
+Franziska Bock
