@@ -7,19 +7,25 @@ const Events = Matter.Events;
 let engine;
 let world;
 
-const CANVAS_SIZE = 960;
-const CENTER_X = CANVAS_SIZE / 2;
-const CENTER_Y = CANVAS_SIZE / 2;
+// Referenzgröße, auf die das Design (Radien etc.) ursprünglich abgestimmt wurde.
+// Alle Größen unten werden proportional dazu hochskaliert (SCALE).
+const BASE_SIZE = 960;
+const CANVAS_FILL_RATIO = 1.5; // wie viel vom kleineren Bildschirmmaß genutzt wird
 
-const BALL_RADIUS = 20;
+let CANVAS_SIZE;
+let CENTER_X;
+let CENTER_Y;
+let SCALE;
+
+let BALL_RADIUS;
 const MAX_BALLS = 3;
 let balls = [];
 
 let walls = [];
 
-const RING_RADIUS = 230;
+let RING_RADIUS;
 const CIRCLE_COUNT = 48;
-const CIRCLE_RADIUS = 12;
+let CIRCLE_RADIUS;
 
 let ringCircles = [];
 
@@ -40,25 +46,25 @@ const MAGNET_FORCE = 0.00035;
 
 // Kleinerer Radius = Kugeln müssen näher zur Mitte,
 // dadurch dauert die Magnet-Phase länger
-const MAGNET_CAPTURE_RADIUS = 5;
+let MAGNET_CAPTURE_RADIUS;
 
 // 1 Sekunde warten, bevor der Ring neu erscheint
 const RESET_DELAY = 300;
 
 
-const ORBIT_BALL_RADIUS = 15;
+let ORBIT_BALL_RADIUS;
 
-const INNER_ORBIT_RADIUS = 45;
-const MIDDLE_ORBIT_RADIUS = 95;
-const OUTER_ORBIT_RADIUS = 145;
+let INNER_ORBIT_RADIUS;
+let MIDDLE_ORBIT_RADIUS;
+let OUTER_ORBIT_RADIUS;
 
 const ORBIT_KNOCK_SPEED = 4.2;
 const ORBIT_RETURN_DELAY = 350;
 const ORBIT_RETURN_FORCE = 0.0008;
 const ORBIT_RETURN_DAMPING = 0.96;
-const ORBIT_SNAP_DISTANCE = 2;
+let ORBIT_SNAP_DISTANCE;
 const ORBIT_SNAP_SPEED = 0.45;
-const ORBIT_MAX_KNOCK_DISTANCE = 38;
+let ORBIT_MAX_KNOCK_DISTANCE;
 const ORBIT_WHITE_BOUNCE_SPEED = 3.8;
 
 
@@ -84,7 +90,36 @@ const ballColors = [
     }
 ];
 
+/*
+    Berechnet Canvas-Größe passend zum Bildschirm und
+    skaliert alle Radien/Distanzen proportional zum
+    ursprünglichen Design (BASE_SIZE = 960px).
+*/
+function computeScaledValues() {
+    CANVAS_SIZE = Math.min(windowWidth, windowHeight) * CANVAS_FILL_RATIO;
+    SCALE = CANVAS_SIZE / BASE_SIZE;
+
+    CENTER_X = CANVAS_SIZE / 2;
+    CENTER_Y = CANVAS_SIZE / 2;
+
+    BALL_RADIUS = 20 * SCALE;
+    RING_RADIUS = 230 * SCALE;
+    CIRCLE_RADIUS = 12 * SCALE;
+
+    MAGNET_CAPTURE_RADIUS = 5 * SCALE;
+
+    ORBIT_BALL_RADIUS = 15 * SCALE;
+
+    INNER_ORBIT_RADIUS = 45 * SCALE;
+    MIDDLE_ORBIT_RADIUS = 95 * SCALE;
+    OUTER_ORBIT_RADIUS = 145 * SCALE;
+
+    ORBIT_SNAP_DISTANCE = 2 * SCALE;
+    ORBIT_MAX_KNOCK_DISTANCE = 38 * SCALE;
+}
+
 function setup() {
+    computeScaledValues();
     createCanvas(CANVAS_SIZE, CANVAS_SIZE);
 
     engine = Engine.create();
@@ -105,7 +140,7 @@ function setup() {
     createRing();
     setupCollisionEvents();
 
-    createBall(530, CENTER_Y, -5, 3);
+    createBall(CENTER_X + 50 * SCALE, CENTER_Y, -5, 3);
 }
 function draw() {
     background(0, 0, 0);
@@ -651,7 +686,7 @@ function spawnExtraBall() {
     }
 
     const spawnAngle = random(TWO_PI);
-    const spawnDistance = RING_RADIUS + 55;
+    const spawnDistance = RING_RADIUS + 55 * SCALE;
 
     const x = CENTER_X + cos(spawnAngle) * spawnDistance;
     const y = CENTER_Y + sin(spawnAngle) * spawnDistance;
@@ -946,5 +981,5 @@ function resetSimulation() {
     createRing();
 
     // Eine neue weiße Kugel wie beim Start erstellen
-    createBall(530, CENTER_Y, -5, 3);
+    createBall(CENTER_X + 50 * SCALE, CENTER_Y, -5, 3);
 }
