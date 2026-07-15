@@ -10,7 +10,7 @@ let world;
 // Referenzgröße, auf die das Design (Radien etc.) ursprünglich abgestimmt wurde.
 // Alle Größen unten werden proportional dazu hochskaliert (SCALE).
 const BASE_SIZE = 960;
-const CANVAS_FILL_RATIO = 1.5; // wie viel vom kleineren Bildschirmmaß genutzt wird
+const CANVAS_FILL_RATIO = 0.94; // wie viel vom kleineren Bildschirmmaß genutzt wird
 
 let CANVAS_SIZE;
 let CENTER_X;
