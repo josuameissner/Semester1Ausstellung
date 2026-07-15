@@ -24,7 +24,7 @@ const WECKERS = [
   },
   {
     key: "Shania Mostafavi",
-    title: "LumiCUBE",
+    title: "LumiCube",
     students: ["Shania Mostafavi"],
     media: [
       { type: "image", src: "Bilder und videos/Shania Mostafavi.png" }
