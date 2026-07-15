@@ -259,10 +259,6 @@ button:focus-visible {
   .slide__stage { flex-direction: column; justify-content: flex-start; }
   .slide__info { width: 100%; align-self: flex-start; }
   .slide__video-wrap { width: 100%; }
-  .site-footer { flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; }
-  .site-footer__meta { gap: 20px; flex-direction: column; }
-  .site-footer__meta > div:first-child { flex-basis: auto; }
-  .site-footer .dots { position: static; transform: none; order: 3; }
 }
 
 @media (prefers-reduced-motion: reduce) {
