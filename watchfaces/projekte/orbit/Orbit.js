@@ -16,6 +16,11 @@ let CANVAS_SIZE;
 let CENTER_X;
 let CENTER_Y;
 let SCALE;
+let CONTENT_SCALE;
+
+// Wie viel größer Ring/Orbits/Kugeln zusätzlich zur reinen Canvas-Größe
+// dargestellt werden. 1.0 = altes Verhältnis. Höher = füllt mehr vom Canvas aus.
+const CONTENT_BOOST = 1.6;
 
 let BALL_RADIUS;
 const MAX_BALLS = 3;
@@ -98,24 +103,25 @@ const ballColors = [
 function computeScaledValues() {
     CANVAS_SIZE = Math.min(windowWidth, windowHeight) * CANVAS_FILL_RATIO;
     SCALE = CANVAS_SIZE / BASE_SIZE;
+    CONTENT_SCALE = SCALE * CONTENT_BOOST;
 
     CENTER_X = CANVAS_SIZE / 2;
     CENTER_Y = CANVAS_SIZE / 2;
 
-    BALL_RADIUS = 20 * SCALE;
-    RING_RADIUS = 230 * SCALE;
-    CIRCLE_RADIUS = 12 * SCALE;
+    BALL_RADIUS = 20 * CONTENT_SCALE;
+    RING_RADIUS = 230 * CONTENT_SCALE;
+    CIRCLE_RADIUS = 12 * CONTENT_SCALE;
 
-    MAGNET_CAPTURE_RADIUS = 5 * SCALE;
+    MAGNET_CAPTURE_RADIUS = 5 * CONTENT_SCALE;
 
-    ORBIT_BALL_RADIUS = 15 * SCALE;
+    ORBIT_BALL_RADIUS = 15 * CONTENT_SCALE;
 
-    INNER_ORBIT_RADIUS = 45 * SCALE;
-    MIDDLE_ORBIT_RADIUS = 95 * SCALE;
-    OUTER_ORBIT_RADIUS = 145 * SCALE;
+    INNER_ORBIT_RADIUS = 45 * CONTENT_SCALE;
+    MIDDLE_ORBIT_RADIUS = 95 * CONTENT_SCALE;
+    OUTER_ORBIT_RADIUS = 145 * CONTENT_SCALE;
 
-    ORBIT_SNAP_DISTANCE = 2 * SCALE;
-    ORBIT_MAX_KNOCK_DISTANCE = 38 * SCALE;
+    ORBIT_SNAP_DISTANCE = 2 * CONTENT_SCALE;
+    ORBIT_MAX_KNOCK_DISTANCE = 38 * CONTENT_SCALE;
 }
 
 function setup() {
@@ -140,7 +146,7 @@ function setup() {
     createRing();
     setupCollisionEvents();
 
-    createBall(CENTER_X + 50 * SCALE, CENTER_Y, -5, 3);
+    createBall(CENTER_X + 50 * CONTENT_SCALE, CENTER_Y, -5, 3);
 }
 function draw() {
     background(0, 0, 0);
@@ -686,7 +692,7 @@ function spawnExtraBall() {
     }
 
     const spawnAngle = random(TWO_PI);
-    const spawnDistance = RING_RADIUS + 55 * SCALE;
+    const spawnDistance = RING_RADIUS + 55 * CONTENT_SCALE;
 
     const x = CENTER_X + cos(spawnAngle) * spawnDistance;
     const y = CENTER_Y + sin(spawnAngle) * spawnDistance;
@@ -981,5 +987,5 @@ function resetSimulation() {
     createRing();
 
     // Eine neue weiße Kugel wie beim Start erstellen
-    createBall(CENTER_X + 50 * SCALE, CENTER_Y, -5, 3);
+    createBall(CENTER_X + 50 * CONTENT_SCALE, CENTER_Y, -5, 3);
 }
