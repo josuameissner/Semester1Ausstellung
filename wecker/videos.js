@@ -73,7 +73,7 @@ const WECKERS = [
   },
   {
     key: "Lilly Drabek",
-    title: "Wecker für Jessica",
+    title: "Wecker für Jeremy",
     students: ["Lilly Drabek"],
     media: [
       { type: "image", src: "Bilder und videos/Lilly Drabek.png" }
