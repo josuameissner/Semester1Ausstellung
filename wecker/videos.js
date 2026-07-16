@@ -64,7 +64,7 @@ const WECKERS = [
   },
   {
     key: "Jessica Lenz",
-    title: "Wecker für Nadine",
+    title: "Lichtwecker",
     students: ["Jessica Lenz"],
     media: [
       { type: "youtube", src: "https://youtube.com/shorts/6qq87Ok7f2M", aspect: "585 / 1266" },
