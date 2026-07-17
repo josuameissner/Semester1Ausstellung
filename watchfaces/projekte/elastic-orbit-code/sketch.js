@@ -459,7 +459,36 @@ function draw() {
   drawPickups();
   drawBall();
 
+  if (fallingMode) {
+    checkFallingComplete();
+  }
+
   collectedPulse *= 0.91;
+}
+
+function hasFallenOffScreen(body, margin) {
+  return body.position.y - margin > WORLD_SIZE;
+}
+
+function checkFallingComplete() {
+  const ballGone = hasFallenOffScreen(ball, PLAYER_SIZE / 2);
+  const pickupsGone = pickups.every((pickup) =>
+    hasFallenOffScreen(pickup, PICKUP_SQUARE_SIZE / 2),
+  );
+
+  if (ballGone && pickupsGone) {
+    restartCycle();
+  }
+}
+
+function restartCycle() {
+  Composite.clear(world, false, true);
+  loopTarget = 0;
+  slingFrames = 0;
+  slingSide = 0;
+  slingCooldown = 0;
+  createWorld();
+  World.add(world, mouseConstraint);
 }
 
 function updatePickupSpawning() {
